@@ -1,0 +1,1966 @@
+/* =========================================================
+   LOVELETTER — STANDALONE LETTER EDITOR
+   ========================================================= */
+
+:root {
+    --color-background: #ffe3e8;
+
+    --color-primary: #c93657;
+    --color-primary-light: #f36b87;
+    --color-primary-dark: #8f1838;
+    --color-red-glow: #ff456d;
+
+    --color-text: #5c172b;
+    --color-text-soft: #925264;
+    --color-white: #ffffff;
+
+    --glass-background: rgba(255, 255, 255, 0.32);
+    --glass-background-red: rgba(255, 78, 111, 0.16);
+    --glass-border: rgba(255, 255, 255, 0.65);
+    --glass-highlight: rgba(255, 255, 255, 0.75);
+
+    --shadow-soft: 0 15px 45px rgba(125, 20, 50, 0.12);
+    --shadow-red: 0 15px 50px rgba(210, 35, 75, 0.20);
+    --shadow-glow: 0 0 60px rgba(255, 65, 105, 0.22);
+
+    --radius-small: 14px;
+    --radius-medium: 22px;
+    --radius-large: 34px;
+    --radius-pill: 999px;
+
+    --transition: 0.35s ease;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    color: var(--color-text);
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(255, 255, 255, 0.75) 0%,
+            rgba(255, 255, 255, 0) 28%
+        ),
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(255, 91, 125, 0.35) 0%,
+            rgba(255, 91, 125, 0) 30%
+        ),
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(255, 60, 100, 0.25) 0%,
+            rgba(255, 60, 100, 0) 35%
+        ),
+        linear-gradient(
+            135deg,
+            #ffe9ed,
+            #ffd6de 45%,
+            #ffc3cf
+        );
+}
+
+
+/* =========================================================
+   BACKGROUND JELLY BLOBS
+   ========================================================= */
+
+body::before,
+body::after {
+    content: "";
+
+    position: fixed;
+
+    width: 500px;
+    height: 500px;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    z-index: -1;
+
+    filter: blur(80px);
+
+    opacity: 0.55;
+}
+
+body::before {
+    top: -180px;
+    left: -180px;
+
+    background: rgba(255, 255, 255, 0.55);
+}
+
+body::after {
+    right: -180px;
+    bottom: -200px;
+
+    background: rgba(255, 60, 100, 0.28);
+}
+
+
+/* =========================================================
+   GLASS BUBBLE CURSOR
+   ========================================================= */
+
+@media (pointer: fine) {
+
+    body {
+        cursor: default;
+    }
+
+    a,
+    button,
+    input[type="radio"],
+    input[type="color"],
+    label {
+        cursor: pointer;
+    }
+
+    .love-cursor {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 18px;
+        height: 18px;
+
+        border-radius: 50%;
+
+        pointer-events: none;
+
+        z-index: 99999;
+
+        transform: translate(-50%, -50%);
+
+        opacity: 1;
+
+        transition:
+            opacity 0.2s ease,
+            width 0.25s ease,
+            height 0.25s ease,
+            box-shadow 0.25s ease;
+
+        background:
+            radial-gradient(
+                circle at 30% 25%,
+                rgba(255, 255, 255, .95) 0%,
+                rgba(255, 255, 255, .55) 18%,
+                rgba(255, 120, 145, .20) 55%,
+                rgba(255, 255, 255, .08) 100%
+            );
+
+        border: 1px solid rgba(255, 255, 255, .85);
+
+        box-shadow:
+            0 4px 12px rgba(130, 20, 50, .12),
+            0 0 18px rgba(235, 65, 100, .15),
+            inset 1px 1px 2px rgba(255, 255, 255, .9),
+            inset -1px -1px 2px rgba(190, 40, 75, .10);
+
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .love-cursor::before {
+        content: "";
+
+        position: absolute;
+
+        top: 3px;
+        left: 4px;
+
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: rgba(255, 255, 255, .9);
+
+        filter: blur(1px);
+    }
+}
+
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
+.letter-page {
+    min-height: 100vh;
+
+    padding: 55px 5% 60px;
+}
+
+
+/* =========================================================
+   EDITOR HEADER
+   ========================================================= */
+
+.editor-header {
+    width: min(1400px, 100%);
+
+    margin: 0 auto 35px;
+
+    display: grid;
+
+    grid-template-columns: 1fr auto 1fr;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.editor-brand {
+    justify-self: start;
+
+    display: flex;
+    align-items: center;
+}
+
+.editor-brand span {
+    font-size: .72rem;
+
+    font-weight: 700;
+
+    letter-spacing: .18em;
+
+    color: var(--color-primary);
+
+    opacity: .9;
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.editor-title {
+    text-align: center;
+}
+
+.editor-title > span {
+    font-size: .7rem;
+
+    font-weight: 700;
+
+    letter-spacing: .16em;
+
+    color: var(--color-primary);
+}
+
+.editor-title h1 {
+    margin: 6px 0 0;
+
+    font-size: 1.4rem;
+
+    font-weight: 600;
+
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   EDITOR ACTIONS
+   ========================================================= */
+
+.editor-actions {
+    justify-self: end;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.editor-button {
+    padding: 8px 13px;
+
+    border: 1px solid var(--glass-border);
+
+    border-radius: var(--radius-pill);
+
+    background: rgba(255, 255, 255, .35);
+
+    color: var(--color-text);
+
+    font: inherit;
+
+    font-size: .72rem;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.editor-button:hover {
+    background: rgba(255, 255, 255, .55);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 16px rgba(125, 20, 50, .08);
+}
+
+.editor-button:active {
+    transform: translateY(0);
+}
+
+.editor-download {
+    background:
+        linear-gradient(
+            135deg,
+            #e64b6b,
+            #b92347
+        );
+
+    color: white;
+
+    border-color: transparent;
+
+    box-shadow:
+        0 10px 30px rgba(190, 25, 65, .28),
+        inset 0 1px 1px rgba(255, 255, 255, .55);
+}
+
+.editor-download:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #d94162,
+            #a91d40
+        );
+
+    box-shadow:
+        0 12px 32px rgba(190, 25, 65, .34),
+        inset 0 1px 1px rgba(255, 255, 255, .6);
+}
+
+
+/* =========================================================
+   EDITOR LAYOUT
+   ========================================================= */
+
+.letter-editor {
+    width: min(1400px, 100%);
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: 360px 1fr;
+
+    gap: 22px;
+}
+
+
+/* =========================================================
+   GLASS PANELS
+   ========================================================= */
+
+.editor-panel,
+.editor-preview {
+    border: 1px solid var(--glass-border);
+
+    border-radius: var(--radius-large);
+
+    backdrop-filter: blur(20px);
+
+    -webkit-backdrop-filter: blur(20px);
+
+    box-shadow: var(--shadow-soft);
+}
+
+
+/* =========================================================
+   PERSONALIZATION PANEL
+   ========================================================= */
+
+.editor-panel {
+    padding: 26px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, .46),
+            rgba(255, 255, 255, .20)
+        );
+
+    max-height: calc(100vh - 140px);
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        rgba(201, 54, 87, .25)
+        transparent;
+}
+
+.editor-panel::-webkit-scrollbar {
+    width: 5px;
+}
+
+.editor-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.editor-panel::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+
+    background:
+        rgba(201, 54, 87, .25);
+}
+
+
+/* =========================================================
+   PREVIEW PANEL
+   ========================================================= */
+
+.editor-preview {
+    min-width: 0;
+
+    padding: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, .25),
+            rgba(255, 255, 255, .10)
+        );
+}
+
+
+/* =========================================================
+   PANEL HEADING
+   ========================================================= */
+
+.panel-heading {
+    margin-bottom: 18px;
+}
+
+.panel-heading > span {
+    font-size: .7rem;
+
+    font-weight: 700;
+
+    letter-spacing: .16em;
+
+    color: var(--color-primary);
+}
+
+.panel-heading h2 {
+    margin: 6px 0 0;
+
+    font-size: 1.4rem;
+
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   CONTROL GROUP
+   ========================================================= */
+
+.control-group {
+    padding: 16px 0;
+
+    border-top:
+        1px solid rgba(201, 54, 87, .09);
+}
+
+.control-group > label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    font-size: .78rem;
+
+    font-weight: 600;
+
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.letter-input,
+.letter-textarea {
+    width: 100%;
+
+    border:
+        1px solid rgba(201, 54, 87, .12);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255, 255, 255, .28);
+
+    color: var(--color-text);
+
+    font: inherit;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.letter-input {
+    height: 44px;
+
+    padding: 0 13px;
+}
+
+.letter-textarea {
+    min-height: 170px;
+
+    padding: 13px;
+
+    resize: vertical;
+
+    line-height: 1.65;
+
+    overflow-y: hidden;
+
+    transition:
+        height .15s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.letter-input::placeholder,
+.letter-textarea::placeholder {
+    color:
+        rgba(146, 82, 100, .6);
+}
+
+.letter-input:hover,
+.letter-textarea:hover {
+    background:
+        rgba(255, 255, 255, .34);
+}
+
+.letter-input:focus,
+.letter-textarea:focus {
+    border-color:
+        rgba(201, 54, 87, .35);
+
+    background:
+        rgba(255, 255, 255, .42);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(201, 54, 87, .07);
+}
+
+
+/* =========================================================
+   MESSAGE META
+   ========================================================= */
+
+.message-meta {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 7px;
+
+    font-size: .65rem;
+
+    color:
+        var(--color-text-soft);
+}
+
+
+/* =========================================================
+   PHOTO UPLOAD
+   ========================================================= */
+
+.photo-upload {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 14px;
+
+    border:
+        1px dashed rgba(201, 54, 87, .35);
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, .22);
+
+    cursor: pointer;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        transform .25s ease;
+}
+
+.photo-upload:hover {
+    background:
+        rgba(255, 255, 255, .38);
+
+    border-color:
+        rgba(201, 54, 87, .6);
+
+    transform:
+        translateY(-2px);
+}
+
+.photo-upload-icon {
+    flex: 0 0 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, .55);
+
+    color:
+        var(--color-primary);
+
+    font-size: 22px;
+}
+
+.photo-upload-text {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1px;
+
+    min-width: 0;
+}
+
+.photo-upload-text strong {
+    font-size: 13px;
+
+    color:
+        var(--color-text);
+}
+
+.photo-upload-text small {
+    font-size: 11px;
+
+    color:
+        var(--color-text-soft);
+}
+
+.photo-remove {
+    margin-top: 8px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color:
+        var(--color-primary-dark);
+
+    font-size: 11px;
+
+    text-decoration: underline;
+
+    cursor: pointer;
+}
+
+.photo-remove:hover {
+    color:
+        var(--color-red-glow);
+}
+
+
+/* =========================================================
+   OPTION GRIDS
+   ========================================================= */
+
+.option-grid {
+    display: grid;
+
+    gap: 8px;
+}
+
+.font-grid,
+.theme-grid {
+    grid-template-columns:
+        repeat(3, 1fr);
+}
+
+
+/* =========================================================
+   SHARED OPTIONS
+   ========================================================= */
+
+.font-option,
+.theme-option,
+.color-option {
+    position: relative;
+
+    cursor: pointer;
+
+    border:
+        1px solid rgba(201, 54, 87, .09);
+
+    background:
+        rgba(255, 255, 255, .18);
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.font-option:hover,
+.theme-option:hover,
+.color-option:hover {
+    background:
+        rgba(255, 255, 255, .32);
+
+    transform:
+        translateY(-1px);
+}
+
+.font-option:has(input:checked),
+.theme-option:has(input:checked),
+.color-option:has(input:checked) {
+    border-color:
+        rgba(201, 54, 87, .35);
+
+    background:
+        rgba(255, 255, 255, .42);
+
+    box-shadow:
+        0 4px 12px
+        rgba(125, 20, 50, .05);
+}
+
+.font-option input,
+.theme-option input,
+.color-option input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   FONTS
+   ========================================================= */
+
+.font-option {
+    display: grid;
+
+    justify-items: center;
+
+    gap: 5px;
+
+    padding: 9px 4px;
+
+    border-radius: 12px;
+
+    font-size: .63rem;
+
+    color:
+        var(--color-text);
+}
+
+.font-preview {
+    font-size: 1.05rem;
+}
+
+.font-classic {
+    font-family: Georgia, serif;
+}
+
+.font-elegant {
+    font-family:
+        "Times New Roman", serif;
+
+    font-style: italic;
+}
+
+.font-modern {
+    font-family:
+        Arial, sans-serif;
+}
+
+.font-handwritten {
+    font-family:
+        cursive;
+}
+
+.font-typewriter {
+    font-family:
+        "Courier New", monospace;
+}
+
+
+/* =========================================================
+   LETTER COLORS
+   ========================================================= */
+
+.color-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, 1fr);
+
+    gap: 6px;
+}
+
+.color-option {
+    display: grid;
+
+    justify-items: center;
+
+    gap: 5px;
+
+    padding: 7px 2px;
+
+    border-radius: 10px;
+
+    font-size: .52rem;
+
+    color:
+        var(--color-text);
+}
+
+.color-swatch {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    border:
+        2px solid
+        rgba(255, 255, 255, .8);
+
+    box-shadow:
+        0 3px 8px
+        rgba(125, 20, 50, .1);
+}
+
+.color-rose {
+    background: #c93657;
+}
+
+.color-berry {
+    background: #9e2850;
+}
+
+.color-blush {
+    background: #e76f8b;
+}
+
+.color-plum {
+    background: #6f2942;
+}
+
+.color-wine {
+    background: #751d35;
+}
+
+.color-cocoa {
+    background: #68443b;
+}
+
+
+/* =========================================================
+   CUSTOM COLOR
+   ========================================================= */
+
+.custom-color {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-top: 8px;
+
+    padding: 8px 10px;
+
+    border:
+        1px solid rgba(201, 54, 87, .09);
+
+    border-radius: 10px;
+
+    background:
+        rgba(255, 255, 255, .18);
+
+    font-size: .7rem;
+
+    color:
+        var(--color-text);
+}
+
+.custom-color input {
+    width: 30px;
+    height: 24px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   THEMES
+   ========================================================= */
+
+.theme-option {
+    padding: 6px;
+
+    border-radius: 11px;
+
+    font-size: .6rem;
+
+    color:
+        var(--color-text);
+}
+
+.theme-preview {
+    display: block;
+
+    height: 48px;
+
+    margin-bottom: 5px;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   THEME PREVIEWS
+   ========================================================= */
+
+.theme-preview.theme-textured {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #fffaf9 0 3px,
+            #f7e9ed 3px 5px
+        );
+}
+
+.theme-preview.theme-solid {
+    background:
+        #ffb5c5;
+}
+
+.theme-preview.theme-jelly {
+    position: relative;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff9bb3,
+            #e94972
+        );
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .6);
+}
+
+.theme-preview.theme-jelly::after {
+    content: "";
+
+    display: block;
+
+    width: 9px;
+    height: 9px;
+
+    margin: 8px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, .65);
+
+    box-shadow:
+        35px 25px 0
+        rgba(255, 255, 255, .25),
+
+        72px 8px 0
+        rgba(255, 255, 255, .2);
+}
+
+.theme-preview.theme-midnight {
+    background:
+        linear-gradient(
+            135deg,
+            #35131f,
+            #681f3a
+        );
+}
+
+.theme-preview.theme-noir {
+    background:
+        linear-gradient(
+            135deg,
+            #171115,
+            #3a1828
+        );
+}
+
+
+/* =========================================================
+   LIVE PREVIEW HEADER
+   ========================================================= */
+
+.preview-header {
+    padding:
+        4px 4px 15px;
+}
+
+.preview-header span {
+    font-size: .7rem;
+
+    font-weight: 700;
+
+    letter-spacing: .16em;
+
+    color:
+        var(--color-primary);
+}
+
+
+/* =========================================================
+   PREVIEW AREA
+   ========================================================= */
+
+.preview-area {
+    min-height: 610px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 30px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(255, 220, 228, .16);
+}
+
+
+/* =========================================================
+   LETTER PAPER
+   ========================================================= */
+
+.letter-paper {
+    --letter-color: #c93657;
+
+    --letter-font:
+        Georgia, serif;
+
+    position: relative;
+
+    width:
+        min(500px, 90%);
+
+    min-height: 500px;
+
+    padding:
+        55px 50px;
+
+    border-radius: 10px;
+
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #fffaf9 0 3px,
+            #f7e9ed 3px 5px
+        );
+
+    border:
+        1px solid
+        rgba(201, 54, 87, .18);
+
+    box-shadow:
+        0 25px 60px
+        rgba(125, 20, 50, .15);
+
+    color:
+        var(--letter-color);
+
+    overflow: hidden;
+
+    transition:
+        background .35s ease,
+        color .25s ease,
+        border .35s ease,
+        box-shadow .35s ease;
+}
+
+
+/* =========================================================
+   LETTER DECORATION
+   ========================================================= */
+
+.paper-decoration {
+    position: absolute;
+
+    width: 170px;
+    height: 170px;
+
+    top: -80px;
+    right: -70px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 107, 135, .12);
+
+    filter: blur(10px);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   LETTER LABEL
+   ========================================================= */
+
+.paper-label {
+    position: relative;
+
+    z-index: 2;
+
+    display: block;
+
+    font-size: .7rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: .12em;
+
+    color:
+        var(--letter-color);
+}
+
+
+/* =========================================================
+   POLAROID PHOTO
+   ========================================================= */
+
+.letter-polaroid {
+    position: absolute;
+
+    top: 38px;
+    right: 35px;
+
+    width: 118px;
+
+    padding:
+        7px 7px 10px;
+
+    background:
+        rgba(255, 255, 255, .97);
+
+    border-radius: 3px;
+
+    box-shadow:
+        0 8px 18px rgba(90, 20, 40, .16),
+        0 2px 5px rgba(90, 20, 40, .08);
+
+    transform: rotate(3deg);
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity .3s ease,
+        transform .3s ease,
+        visibility .3s ease;
+
+    z-index: 4;
+}
+
+.letter-polaroid.show {
+    opacity: 1;
+
+    visibility: visible;
+
+    transform:
+        rotate(3deg);
+}
+
+.polaroid-photo {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background:
+        #f7e9ec;
+}
+
+.polaroid-photo img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.polaroid-caption {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    padding-top: 7px;
+
+    color:
+        #8f1838;
+
+    font-family:
+        "Courier New", monospace;
+
+    font-size: 8px;
+
+    line-height: 1.2;
+
+    letter-spacing: .2px;
+
+    white-space: nowrap;
+}
+
+.polaroid-caption span:first-child {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   LETTER GREETING
+   ========================================================= */
+
+.letter-paper h2 {
+    position: relative;
+
+    z-index: 2;
+
+    width:
+        calc(100% - 145px);
+
+    margin:
+        45px 0 20px;
+
+    font-family:
+        var(--letter-font);
+
+    font-size: 1.6rem;
+
+    font-weight: 500;
+
+    color:
+        var(--letter-color);
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   LETTER MESSAGE
+   ========================================================= */
+
+.letter-paper p {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0;
+
+    white-space: pre-wrap;
+
+    overflow-wrap: anywhere;
+
+    font-family:
+        var(--letter-font);
+
+    font-size: .98rem;
+
+    line-height: 1.9;
+
+    color:
+        var(--letter-color);
+}
+
+
+/* =========================================================
+   SIGNATURE
+   ========================================================= */
+
+.paper-sign {
+    position: absolute;
+
+    z-index: 2;
+
+    left: 50px;
+
+    bottom: 50px;
+
+    max-width:
+        calc(100% - 100px);
+
+    font-family:
+        var(--letter-font);
+
+    font-style: italic;
+
+    color:
+        var(--letter-color);
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   ACTUAL LETTER THEMES
+   ========================================================= */
+
+
+/* TEXTURED */
+
+.letter-paper.theme-textured {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #fffaf9 0 3px,
+            #f7e9ed 3px 5px
+        );
+
+    border-color:
+        rgba(201, 54, 87, .18);
+
+    box-shadow:
+        0 25px 60px
+        rgba(125, 20, 50, .15);
+}
+
+
+/* SOLID */
+
+.letter-paper.theme-solid {
+    background:
+        #ffe3ea;
+
+    border-color:
+        rgba(201, 54, 87, .20);
+
+    box-shadow:
+        0 25px 60px
+        rgba(125, 20, 50, .17);
+}
+
+
+/* JELLY */
+
+.letter-paper.theme-jelly {
+    background:
+        linear-gradient(
+            135deg,
+            #ff9bb3,
+            #e94972
+        );
+
+    border-color:
+        rgba(255, 255, 255, .85);
+
+    box-shadow:
+        0 25px 65px
+        rgba(200, 40, 80, .28),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, .75),
+
+        inset 0 -20px 40px
+        rgba(180, 20, 60, .08);
+}
+
+.letter-paper.theme-jelly::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 18% 18%,
+            rgba(255, 255, 255, .55) 0 3%,
+            transparent 3.5%
+        ),
+
+        radial-gradient(
+            circle at 78% 30%,
+            rgba(255, 255, 255, .28) 0 6%,
+            transparent 6.5%
+        ),
+
+        radial-gradient(
+            circle at 55% 76%,
+            rgba(255, 255, 255, .18) 0 8%,
+            transparent 8.5%
+        );
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+/* MIDNIGHT */
+
+.letter-paper.theme-midnight {
+    background:
+        linear-gradient(
+            145deg,
+            #35131f,
+            #681f3a
+        );
+
+    border-color:
+        rgba(255, 185, 205, .28);
+
+    --letter-color:
+        #ffdce7;
+
+    box-shadow:
+        0 25px 70px
+        rgba(35, 5, 20, .35);
+}
+
+
+/* NOIR */
+
+.letter-paper.theme-noir {
+    background:
+        linear-gradient(
+            145deg,
+            #171115,
+            #3a1828
+        );
+
+    border-color:
+        rgba(255, 200, 215, .20);
+
+    --letter-color:
+        #f5dce5;
+
+    box-shadow:
+        0 25px 70px
+        rgba(15, 5, 12, .45);
+}
+
+
+/* =========================================================
+   ACCESSIBILITY — FOCUS
+   ========================================================= */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+label:focus-visible {
+    outline:
+        2px solid
+        rgba(201, 54, 87, .45);
+
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .letter-editor {
+        grid-template-columns:
+            320px 1fr;
+    }
+
+    .editor-panel {
+        padding: 22px;
+    }
+
+    .letter-paper {
+        width: 90%;
+
+        padding:
+            45px 40px;
+    }
+
+    .letter-polaroid {
+        right: 28px;
+        top: 32px;
+
+        width: 110px;
+    }
+
+    .letter-paper h2 {
+        width:
+            calc(100% - 125px);
+    }
+
+    .paper-sign {
+        left: 40px;
+
+        max-width:
+            calc(100% - 80px);
+    }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .letter-page {
+        padding:
+            45px 5% 40px;
+    }
+
+    .editor-header {
+        grid-template-columns:
+            1fr auto;
+
+        gap: 15px;
+    }
+
+    .editor-brand {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .editor-title {
+        grid-column:
+            1 / -1;
+
+        grid-row: 1;
+
+        margin-bottom: 10px;
+    }
+
+    .editor-actions {
+        grid-column: 2;
+        grid-row: 2;
+
+        justify-self: end;
+
+        flex-wrap: wrap;
+    }
+
+    .letter-editor {
+        grid-template-columns:
+            1fr;
+    }
+
+    .editor-panel {
+        max-height: none;
+
+        overflow: visible;
+    }
+
+    .editor-preview {
+        min-height: 650px;
+    }
+
+    .preview-area {
+        min-height: 560px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .letter-page {
+        padding:
+            30px 4% 30px;
+    }
+
+    .editor-header {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        justify-content:
+            space-between;
+
+        gap: 12px;
+    }
+
+    .editor-title {
+        width: 100%;
+
+        order: -2;
+    }
+
+    .editor-title h1 {
+        font-size:
+            1.25rem;
+    }
+
+    .editor-brand {
+        order: -1;
+    }
+
+    .editor-brand span {
+        font-size:
+            .65rem;
+    }
+
+    .editor-actions {
+        width: auto;
+
+        justify-content:
+            flex-start;
+    }
+
+    .editor-button {
+        padding:
+            8px 11px;
+
+        font-size:
+            .68rem;
+    }
+
+    .editor-panel,
+    .editor-preview {
+        padding:
+            18px;
+
+        border-radius:
+            26px;
+    }
+
+    .letter-textarea {
+        min-height:
+            150px;
+    }
+
+    .font-grid,
+    .theme-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .color-options {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .preview-area {
+        min-height:
+            480px;
+
+        padding:
+            12px;
+    }
+
+    .letter-paper {
+        width: 100%;
+
+        min-height:
+            450px;
+
+        padding:
+            38px 28px;
+    }
+
+    /*
+       On mobile the photo moves higher/right
+       and the greeting gets its own full width.
+    */
+
+    .letter-polaroid {
+        top: 30px;
+        right: 24px;
+
+        width: 96px;
+    }
+
+    .letter-paper h2 {
+        width: 100%;
+
+        margin-top:
+            145px;
+
+        font-size:
+            1.4rem;
+    }
+
+    .letter-paper p {
+        font-size:
+            .94rem;
+
+        line-height:
+            1.8;
+    }
+
+    .paper-sign {
+        left: 28px;
+
+        bottom: 38px;
+
+        max-width:
+            calc(100% - 56px);
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .letter-page {
+        padding:
+            25px 3% 25px;
+    }
+
+    .editor-panel,
+    .editor-preview {
+        padding:
+            15px;
+    }
+
+    .font-grid,
+    .theme-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .color-options {
+        gap: 4px;
+    }
+
+    .color-swatch {
+        width: 25px;
+        height: 25px;
+    }
+
+    .letter-paper {
+        padding:
+            32px 23px;
+    }
+
+    .letter-polaroid {
+        top: 25px;
+        right: 18px;
+
+        width: 88px;
+    }
+
+    .letter-paper h2 {
+        margin-top:
+            135px;
+
+        font-size:
+            1.25rem;
+    }
+
+    .letter-paper p {
+        font-size:
+            .9rem;
+
+        line-height:
+            1.75;
+    }
+
+    .paper-sign {
+        left: 23px;
+
+        bottom: 32px;
+
+        max-width:
+            calc(100% - 46px);
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    body {
+        background:
+            white !important;
+    }
+
+    .letter-page {
+        padding: 0;
+    }
+
+    .editor-header,
+    .editor-panel,
+    .preview-header,
+    .love-cursor {
+        display:
+            none !important;
+    }
+
+    .letter-editor {
+        display:
+            block;
+
+        width:
+            100%;
+    }
+
+    .editor-preview {
+        padding: 0;
+
+        border: 0;
+
+        box-shadow: none;
+
+        background:
+            none;
+    }
+
+    .preview-area {
+        min-height:
+            auto;
+
+        padding: 0;
+
+        background:
+            none;
+    }
+
+    .letter-paper {
+        width:
+            100%;
+
+        max-width:
+            700px;
+
+        min-height:
+            900px;
+
+        margin:
+            0 auto;
+
+        box-shadow:
+            none !important;
+    }
+
+    .letter-polaroid {
+        opacity: 1;
+        visibility: visible;
+    }
+}

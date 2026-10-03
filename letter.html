@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="description"
+    content="Create a beautiful personalized LoveLetter."
+>
+
+<title>LoveLetter — Create Your Letter</title>
+
+<!-- Standalone Letter Styles -->
+<link rel="stylesheet" href="letter.css">
+
+</head>
+
+<body>
+<!-- ========================================
+     GLASS BUBBLE CURSOR
+========================================= -->
+<div class="love-cursor" aria-hidden="true"></div>
+
+
+<!-- ========================================
+     MAIN LETTER PAGE
+========================================= -->
+<main class="letter-page">
+
+    <!-- ====================================
+         EDITOR HEADER
+    ===================================== -->
+    <header class="editor-header">
+
+        <!-- Page label -->
+        <div class="editor-brand">
+            <span>LOVELETTER</span>
+        </div>
+
+
+        <!-- Title -->
+        <div class="editor-title">
+            <span>YOUR LITTLE GIFT</span>
+            <h1>Create your letter</h1>
+        </div>
+
+
+        <!-- Actions -->
+        <div class="editor-actions">
+
+            <button
+                type="button"
+                class="editor-button editor-download"
+                id="download-letter"
+            >
+                Download
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ====================================
+         LETTER EDITOR
+    ===================================== -->
+    <section class="letter-editor">
+
+
+        <!-- =================================
+             PERSONALIZATION PANEL
+        ================================== -->
+        <aside class="editor-panel">
+
+            <div class="panel-heading">
+
+                <span>PERSONALIZE</span>
+
+                <h2>Make it yours.</h2>
+
+            </div>
+
+
+            <!-- ==============================
+                 RECIPIENT
+            =============================== -->
+            <div class="control-group">
+
+                <label for="recipient">
+                    Who is it for?
+                </label>
+
+                <input
+                    type="text"
+                    id="recipient"
+                    class="letter-input"
+                    placeholder="Their name"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- ==============================
+                 GREETING
+            =============================== -->
+            <div class="control-group">
+
+                <label for="greeting">
+                    Greeting
+                </label>
+
+                <input
+                    type="text"
+                    id="greeting"
+                    class="letter-input"
+                    placeholder="Dear..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- ==============================
+                 MESSAGE
+            =============================== -->
+            <div class="control-group">
+
+                <label for="message">
+                    Your message
+                </label>
+
+                <textarea
+                    id="message"
+                    class="letter-textarea"
+                    rows="7"
+                    maxlength="2000"
+                    placeholder="Write something from your heart..."
+                ></textarea>
+
+                <div class="message-meta">
+
+                    <span>
+                        Your message
+                    </span>
+
+                    <span id="message-count">
+                        0 / 2000
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 SIGNATURE
+            =============================== -->
+            <div class="control-group">
+
+                <label for="signature">
+                    Your signature
+                </label>
+
+                <input
+                    type="text"
+                    id="signature"
+                    class="letter-input"
+                    placeholder="With love..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- ==============================
+                 PHOTO
+            =============================== -->
+            <div class="control-group">
+
+                <label>
+                    Add a memory
+                </label>
+
+                <label
+                    class="photo-upload"
+                    for="photo-input"
+                >
+
+                    <span class="photo-upload-icon">
+                        ＋
+                    </span>
+
+                    <span class="photo-upload-text">
+
+                        <strong>
+                            Add Photo
+                        </strong>
+
+                        <small>
+                            Choose one image from your device
+                        </small>
+
+                    </span>
+
+                </label>
+
+                <input
+                    type="file"
+                    id="photo-input"
+                    accept="image/*"
+                    hidden
+                >
+
+                <button
+                    type="button"
+                    class="photo-remove"
+                    id="remove-photo"
+                    hidden
+                >
+                    Remove Photo
+                </button>
+
+            </div>
+
+
+            <!-- ==============================
+                 LETTER FONT
+            =============================== -->
+            <div class="control-group">
+
+                <label>
+                    Letter style
+                </label>
+
+                <div class="option-grid font-grid">
+
+
+                    <label class="font-option">
+
+                        <input
+                            type="radio"
+                            name="font"
+                            value="classic"
+                            checked
+                        >
+
+                        <span class="font-preview font-classic">
+                            Aa
+                        </span>
+
+                        <span>
+                            Classic
+                        </span>
+
+                    </label>
+
+
+                    <label class="font-option">
+
+                        <input
+                            type="radio"
+                            name="font"
+                            value="elegant"
+                        >
+
+                        <span class="font-preview font-elegant">
+                            Aa
+                        </span>
+
+                        <span>
+                            Elegant
+                        </span>
+
+                    </label>
+
+
+                    <label class="font-option">
+
+                        <input
+                            type="radio"
+                            name="font"
+                            value="modern"
+                        >
+
+                        <span class="font-preview font-modern">
+                            Aa
+                        </span>
+
+                        <span>
+                            Modern
+                        </span>
+
+                    </label>
+
+
+                    <label class="font-option">
+
+                        <input
+                            type="radio"
+                            name="font"
+                            value="handwritten"
+                        >
+
+                        <span class="font-preview font-handwritten">
+                            Aa
+                        </span>
+
+                        <span>
+                            Handwritten
+                        </span>
+
+                    </label>
+
+
+                    <label class="font-option">
+
+                        <input
+                            type="radio"
+                            name="font"
+                            value="typewriter"
+                        >
+
+                        <span class="font-preview font-typewriter">
+                            Aa
+                        </span>
+
+                        <span>
+                            Typewriter
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 LETTER COLOR
+            =============================== -->
+            <div class="control-group">
+
+                <label>
+                    Letter color
+                </label>
+
+                <div class="color-options">
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#c93657"
+                            checked
+                        >
+
+                        <span class="color-swatch color-rose"></span>
+
+                        <span>
+                            Rose
+                        </span>
+
+                    </label>
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#9e2850"
+                        >
+
+                        <span class="color-swatch color-berry"></span>
+
+                        <span>
+                            Berry
+                        </span>
+
+                    </label>
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#e76f8b"
+                        >
+
+                        <span class="color-swatch color-blush"></span>
+
+                        <span>
+                            Blush
+                        </span>
+
+                    </label>
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#6f2942"
+                        >
+
+                        <span class="color-swatch color-plum"></span>
+
+                        <span>
+                            Plum
+                        </span>
+
+                    </label>
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#751d35"
+                        >
+
+                        <span class="color-swatch color-wine"></span>
+
+                        <span>
+                            Wine
+                        </span>
+
+                    </label>
+
+
+                    <label class="color-option">
+
+                        <input
+                            type="radio"
+                            name="letter-color"
+                            value="#68443b"
+                        >
+
+                        <span class="color-swatch color-cocoa"></span>
+
+                        <span>
+                            Cocoa
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Custom color -->
+                <div class="custom-color">
+
+                    <span>
+                        Custom
+                    </span>
+
+                    <input
+                        type="color"
+                        id="custom-color"
+                        value="#c93657"
+                        aria-label="Choose custom letter color"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 LETTER THEME
+            =============================== -->
+            <div class="control-group">
+
+                <label>
+                    Theme
+                </label>
+
+                <div class="option-grid theme-grid">
+
+
+                    <label class="theme-option">
+
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="textured"
+                            checked
+                        >
+
+                        <span class="theme-preview theme-textured"></span>
+
+                        <span>
+                            Textured
+                        </span>
+
+                    </label>
+
+
+                    <label class="theme-option">
+
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="solid"
+                        >
+
+                        <span class="theme-preview theme-solid"></span>
+
+                        <span>
+                            Solid
+                        </span>
+
+                    </label>
+
+
+                    <label class="theme-option">
+
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="jelly"
+                        >
+
+                        <span class="theme-preview theme-jelly"></span>
+
+                        <span>
+                            Jelly
+                        </span>
+
+                    </label>
+
+
+                    <label class="theme-option">
+
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="midnight"
+                        >
+
+                        <span class="theme-preview theme-midnight"></span>
+
+                        <span>
+                            Midnight
+                        </span>
+
+                    </label>
+
+
+                    <label class="theme-option">
+
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="noir"
+                        >
+
+                        <span class="theme-preview theme-noir"></span>
+
+                        <span>
+                            Noir
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- =================================
+             LIVE PREVIEW
+        ================================== -->
+        <section class="editor-preview">
+
+            <div class="preview-header">
+
+                <span>
+                    LIVE PREVIEW
+                </span>
+
+            </div>
+
+
+            <div class="preview-area">
+
+                <!-- =================================
+                     ACTUAL LETTER
+                ================================== -->
+                <article
+                    class="letter-paper theme-textured"
+                    id="letter-paper"
+                >
+
+                    <!-- Decorative element -->
+                    <div
+                        class="paper-decoration"
+                        aria-hidden="true"
+                    ></div>
+
+
+                    <!-- =================================
+                         POLAROID PHOTO
+                    ================================== -->
+                    <div
+                        class="letter-polaroid"
+                        id="letter-polaroid"
+                    >
+
+                        <div class="polaroid-photo">
+
+                            <img
+                                id="polaroid-image"
+                                src=""
+                                alt="Memory photo"
+                            >
+
+                        </div>
+
+                        <div class="polaroid-caption">
+
+                            <span>
+                                ♡
+                            </span>
+
+                            <span id="polaroid-caption-text">
+                                A little memory
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Small label -->
+                    <span class="paper-label">
+                        A letter for you
+                    </span>
+
+
+                    <!-- Greeting -->
+                    <h2 id="preview-greeting">
+                        Dear Someone Special,
+                    </h2>
+
+
+                    <!-- Message -->
+                    <p id="preview-message">
+                        Your letter will appear here.
+                        Every word you write will become
+                        part of this little gift.
+                    </p>
+
+
+                    <!-- Signature -->
+                    <div
+                        class="paper-sign"
+                        id="preview-signature"
+                    >
+                        With love
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+
+
+<!-- ========================================
+     PDF GENERATOR
+     Used only for Download
+========================================= -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js"></script>
+
+<script src="script.js"></script>
+```
+
+</body>
+</html>
